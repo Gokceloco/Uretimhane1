@@ -6,21 +6,30 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    [Header ("Properties")]
     public float playerMoveSpeed;
-
-    //public float tempSpeed;
-
-    public Rigidbody rb;
-
+    public bool canChangeDirectionWhileJumping;
     public float jumpPower;
 
-    public bool isPlayerTouchingGround;
+    private Rigidbody _rb; 
+    private bool _isPlayerTouchingGround;
+    private bool _isAppleCollected;
+    private bool _isGameStarted;
+    public void StartPlayer()
+    {
+        _rb = GetComponent<Rigidbody>();
+        _isGameStarted = true;
+    }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && isPlayerTouchingGround)
+        if (!_isGameStarted)
         {
-            isPlayerTouchingGround = false;
+            return;
+        }
+        if (Input.GetKeyDown(KeyCode.Space) && _isPlayerTouchingGround)
+        {
+            _isPlayerTouchingGround = false;
             JumpPlayer();
         }
         MovePlayer();
@@ -30,7 +39,11 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            isPlayerTouchingGround = true;
+            _isPlayerTouchingGround = true;
+        }
+        if (collision.gameObject.CompareTag("Enemy"))
+        {
+            gameObject.SetActive(false);
         }
     }
 
@@ -38,15 +51,23 @@ public class Player : MonoBehaviour
     {
         if (collision.gameObject.CompareTag("Ground"))
         {
-            isPlayerTouchingGround = false;
+            _isPlayerTouchingGround = false;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {        
+        if (other.CompareTag("Collectable"))
+        {
+            _isAppleCollected = true;
+            other.gameObject.SetActive(false);
         }
     }
 
     private void JumpPlayer()
     {
-        rb.AddForce(Vector3.up * jumpPower);
+        _rb.AddForce(Vector3.up * jumpPower);
     }
-
     void MovePlayer()
     {
         Vector3 direction = Vector3.zero;
@@ -67,12 +88,20 @@ public class Player : MonoBehaviour
         {
             direction += Vector3.right;
         }
-        if (isPlayerTouchingGround)
-        {
-            rb.velocity = direction.normalized * playerMoveSpeed;
-        }
-        //rb.position += direction.normalized * playerMoveSpeed * Time.deltaTime;
 
-        //transform.position += direction.normalized * playerMoveSpeed * Time.deltaTime;
+        if (canChangeDirectionWhileJumping)
+        {
+            _rb.position += direction.normalized * playerMoveSpeed * Time.deltaTime;
+        }
+        else if (_isPlayerTouchingGround)
+        {
+            _rb.velocity = direction.normalized * playerMoveSpeed;
+        }
     }
+    public bool GetIfAppleCollected()
+    {
+        return _isAppleCollected;
+    }
+
+    
 }
