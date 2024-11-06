@@ -6,6 +6,8 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
+    public GameDirector gameDirector;
+
     [Header ("Properties")]
     public float playerMoveSpeed;
     public bool canChangeDirectionWhileJumping;
@@ -13,12 +15,21 @@ public class Player : MonoBehaviour
 
     private Rigidbody _rb; 
     private bool _isPlayerTouchingGround;
+    private bool _didPlayerMakeTheSecondJump;
     private bool _isAppleCollected;
     private bool _isGameStarted;
-    public void StartPlayer()
+
+    public int maxJumpCount;
+
+    private int jumpCount;
+    public void RestartPlayer()
     {
         _rb = GetComponent<Rigidbody>();
         _isGameStarted = true;
+
+        transform.position = new Vector3(-3.5f, .5f, 0);
+        _rb.velocity = Vector3.zero;
+        gameObject.SetActive(true);
     }
 
     void Update()
@@ -27,9 +38,11 @@ public class Player : MonoBehaviour
         {
             return;
         }
-        if (Input.GetKeyDown(KeyCode.Space) && _isPlayerTouchingGround)
+        if (Input.GetKeyDown(KeyCode.Space) 
+            && (_isPlayerTouchingGround || jumpCount < maxJumpCount))
         {
             _isPlayerTouchingGround = false;
+            jumpCount += 1;
             JumpPlayer();
         }
         MovePlayer();
@@ -40,6 +53,7 @@ public class Player : MonoBehaviour
         if (collision.gameObject.CompareTag("Ground"))
         {
             _isPlayerTouchingGround = true;
+            jumpCount = 0;
         }
         if (collision.gameObject.CompareTag("Enemy"))
         {
@@ -61,6 +75,11 @@ public class Player : MonoBehaviour
         {
             _isAppleCollected = true;
             other.gameObject.SetActive(false);
+            maxJumpCount += 1;
+        }
+        if (other.CompareTag("Exit") && _isAppleCollected)
+        {
+            gameDirector.PlayerReachedExit();
         }
     }
 

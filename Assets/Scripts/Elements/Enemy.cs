@@ -11,7 +11,7 @@ public class Enemy : MonoBehaviour
 
     private void Update()
     {
-        if(player.GetIfAppleCollected())
+        if (player.GetIfAppleCollected())
         {
             MoveToPlayer();
         }
@@ -19,6 +19,8 @@ public class Enemy : MonoBehaviour
 
     private void MoveToPlayer()
     {
+        GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
+
         var direction = (player.transform.position - transform.position).normalized;
         direction.y = 0;
         transform.position += direction * Time.deltaTime * speed;
