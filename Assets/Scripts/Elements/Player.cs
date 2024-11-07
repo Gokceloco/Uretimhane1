@@ -30,6 +30,7 @@ public class Player : MonoBehaviour
         transform.position = new Vector3(-3.5f, .5f, 0);
         _rb.velocity = Vector3.zero;
         gameObject.SetActive(true);
+        _isAppleCollected = false;
     }
 
     void Update()
@@ -58,6 +59,7 @@ public class Player : MonoBehaviour
         if (collision.gameObject.CompareTag("Enemy"))
         {
             gameObject.SetActive(false);
+            gameDirector.enemyManager.StopEnemies();
         }
     }
 
@@ -71,11 +73,13 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {        
-        if (other.CompareTag("Collectable"))
+        if (other.CompareTag("Apple"))
         {
             _isAppleCollected = true;
             other.gameObject.SetActive(false);
             maxJumpCount += 1;
+            gameDirector.levelManager.exit.gameObject.SetActive(true);
+            gameDirector.enemyManager.KillEnemyTweens();
         }
         if (other.CompareTag("Exit") && _isAppleCollected)
         {

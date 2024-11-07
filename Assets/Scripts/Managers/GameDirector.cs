@@ -6,6 +6,7 @@ using UnityEngine;
 public class GameDirector : MonoBehaviour
 {
     public EnemyManager enemyManager;
+    public LevelManager levelManager;
 
     public Player player;
     private void Start()
@@ -24,7 +25,8 @@ public class GameDirector : MonoBehaviour
     private void RestartGame()
     {
         enemyManager.DeleteEnemies();
-        enemyManager.GenEnemies();
+        levelManager.RestartLevelManager();
+        enemyManager.GenerateEnemies();
         player.RestartPlayer();
     }
 

@@ -1,3 +1,4 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -16,7 +17,6 @@ public class Enemy : MonoBehaviour
             MoveToPlayer();
         }
     }
-
     private void MoveToPlayer()
     {
         GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
@@ -24,5 +24,10 @@ public class Enemy : MonoBehaviour
         var direction = (player.transform.position - transform.position).normalized;
         direction.y = 0;
         transform.position += direction * Time.deltaTime * speed;
+    }
+
+    private void OnDestroy()
+    {
+        transform.DOKill();
     }
 }
